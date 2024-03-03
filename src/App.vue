@@ -1,85 +1,62 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div id="app">
+    <v-layout>
+      <v-app-bar :elevation="2">
+        <v-container>
+          <v-row align="center">
+            <v-col class="pa-0" cols="auto">
+              <v-app-bar-title
+                ><router-link to="/" style="text-decoration: none; color: initial"
+                  >Pokedex Explorer</router-link
+                ></v-app-bar-title
+              >
+            </v-col>
+            <v-col class="d-flex align-center justify-center"
+              ><PokemonSearchBox :allPokemon="pokemonsFromStore" />
+            </v-col>
+            <v-col cols="auto" class="text-right">
+              <v-btn icon @click="drawer = true">
+                <v-icon v-if="favoriteCount">mdi-heart</v-icon>
+                <v-icon v-else>mdi-heart-outline</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-app-bar>
+      <v-navigation-drawer v-model="drawer" temporary clipped location="right">
+        <FavoritePokemonList />
+      </v-navigation-drawer>
+    </v-layout>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+    <div class="main-content">
+      <router-view />
     </div>
-  </header>
-
-  <RouterView />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
+<script lang="ts">
+import { defineComponent, computed, ref, onMounted } from 'vue';
+import PokemonSearchBox from '@/components/PokemonSearchBox.vue';
+import { useFavoritesStore } from '@/stores/favorites.js';
+import FavoritePokemonList from '@/components/FavoritePokemonList.vue';
+import { usePokemonStore } from '@/stores/pokemon.js';
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+export default defineComponent({
+  name: 'App',
+  components: { PokemonSearchBox, FavoritePokemonList },
+  setup() {
+    const drawer = ref(false);
+    const favoriteStore = useFavoritesStore();
+    const pokemonStore = usePokemonStore();
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+    onMounted(async () => {
+      await pokemonStore.fetchPokemon();
+    });
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
+    const favoriteCount = computed(() => favoriteStore.favorites.length);
+    const pokemonsFromStore = computed(() => pokemonStore.allPokemon);
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+    return { drawer, favoriteCount, pokemonsFromStore };
   }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
+});
+</script>
