@@ -1,3 +1,6 @@
+# Homepage preview screenshot
+![image](https://github.com/giannosdev/pokedex-explorer/assets/17617641/edb0de1a-c293-41bf-8d91-d8ab5d357117)
+
 # podekex-explorer
 
 This template should help get you started developing with Vue 3 in Vite.
